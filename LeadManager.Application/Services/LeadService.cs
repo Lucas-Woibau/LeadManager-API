@@ -1,6 +1,7 @@
 ﻿using LeadManager.Application.Models;
 using LeadManager.Domain.Enums;
 using LeadManager.Infrastructure.Persistance;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,21 +18,22 @@ namespace LeadManager.Application.Services
         {
             _context = context;
         }
-        public ResultViewModel<List<LeadItemViewModel>> GetAll()
+        public async Task<ResultViewModel<List<LeadItemViewModel>>> GetAllInvitedAndAccepted()
         {
-            var leads = _context.Leads
-                .Where(l => l.Status != LeadStatus.Declined)
-                .ToList();
+            var leads = await _context.Leads
+                .Where(l => l.Status == LeadStatus.Invited
+                || l.Status == LeadStatus.Accepted)
+                .ToListAsync();
 
             var model = leads.Select(LeadItemViewModel.FromEntity).ToList();
 
             return ResultViewModel<List<LeadItemViewModel>>.Success(model);
         }
 
-        public ResultViewModel<LeadViewModel> GetById(int id)
+        public async Task<ResultViewModel<LeadViewModel>> GetById(int id)
         {
-            var leads = _context.Leads
-                .SingleOrDefault(p => p.Id == id);
+            var leads = await _context.Leads
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             if (leads == null)
                 return ResultViewModel<LeadViewModel>.Error("Lead não existe!");
@@ -41,65 +43,70 @@ namespace LeadManager.Application.Services
             return ResultViewModel<LeadViewModel>.Success(model);
         }
 
-        public ResultViewModel<int> Create(CreateLeadInputModel model)
+        public async Task<ResultViewModel<int>> Create(CreateLeadInputModel model)
         {
             var lead = model.ToEntity();
 
             _context.Leads.Add(lead);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return ResultViewModel<int>.Success(lead.Id);
         }
 
-        public ResultViewModel Update(UpdateLeadInputModel model)
+        public async Task<ResultViewModel> Update(UpdateLeadInputModel model)
         {
-            var lead = _context.Leads.SingleOrDefault(p => p.Id == model.IdLead);
+            var lead = await _context.Leads.SingleOrDefaultAsync(p => p.Id == model.IdLead);
 
             if (lead == null)
                 return ResultViewModel<LeadViewModel>.Error("Lead não existe!");
 
             lead.Update(model.FullName, model.Email, model.PhoneNumber, model.Suburb, model.Category, model.Description, model.Price);
             _context.Leads.Update(lead);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return ResultViewModel.Success();
         }
 
-        public ResultViewModel Delete(int id)
+        public async Task<ResultViewModel> Delete(int id)
         {
-            var lead = _context.Leads.SingleOrDefault(p => p.Id == id);
+            var lead = await _context.Leads.SingleOrDefaultAsync(p => p.Id == id);
 
             if (lead == null)
                 return ResultViewModel<LeadViewModel>.Error("Lead não existe!");
 
             _context.Leads.Remove(lead);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return ResultViewModel.Success();
         }
 
-        public ResultViewModel Accept(int id)
+        public async Task<ResultViewModel> Accept(int id)
         {
-            var lead = _context.Leads.SingleOrDefault(l => l.Id == id);
+            var lead = await _context.Leads.SingleOrDefaultAsync(l => l.Id == id);
 
             if (lead == null)
                 return ResultViewModel.Error("Lead não existe!");
 
-            lead.Accept();
-            _context.SaveChanges();
+            if (!lead.Accept())
+                return ResultViewModel.Error("O lead não pode ser aceito.");
+
+            await _context.SaveChangesAsync();
 
             return ResultViewModel.Success();
         }
 
-        public ResultViewModel Declined(int id)
+        public async Task<ResultViewModel> Declined(int id)
         {
-            var lead = _context.Leads.SingleOrDefault(l => l.Id == id);
+            var lead = await _context.Leads.SingleOrDefaultAsync(l => l.Id == id);
 
             if (lead == null)
                 return ResultViewModel.Error("Lead não existe!");
 
-            lead.Decline();
-            _context.SaveChanges();
+            if (!lead.Decline())
+                return ResultViewModel.Error("O lead não pode ser recusado.");
+
+            _context.Leads.Update(lead);
+            await _context.SaveChangesAsync();
 
             return ResultViewModel.Success();
         }

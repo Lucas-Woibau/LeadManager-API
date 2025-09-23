@@ -35,21 +35,22 @@ namespace LeadManager.Domain.Entities
         public decimal Price { get; private set; }
         public LeadStatus Status { get; private set; }
 
-        public void Accept()
+        public bool Accept()
         {
-            if (Status == LeadStatus.Invited)
-            {
-                Status = LeadStatus.Accepted;
-                ApplyDiscount();
-            }
+            if (Status != LeadStatus.Invited)
+                return false;
+
+            Status = LeadStatus.Accepted;
+            return true;
         }
 
-        public void Decline()
+        public bool Decline()
         {
-            if (Status == LeadStatus.Invited)
-            {
-                Status = LeadStatus.Declined;
-            }
+            if (Status != LeadStatus.Invited)
+                return false;
+
+            Status = LeadStatus.Declined;
+            return true;
         }
 
         private void ApplyDiscount()
@@ -67,6 +68,8 @@ namespace LeadManager.Domain.Entities
             Category = category;
             Description = description;
             Price = price;
+
+            ApplyDiscount();
         }
     }
 }

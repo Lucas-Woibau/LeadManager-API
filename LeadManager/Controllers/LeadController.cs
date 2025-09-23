@@ -15,17 +15,17 @@ namespace LeadManager.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            var result = _service.GetAll();
+            var result = await _service.GetAllInvitedAndAccepted();
 
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var result = _service.GetById(id);
+            var result = await _service.GetById(id);
 
             if (!result.IsSuccess)
             {
@@ -36,17 +36,17 @@ namespace LeadManager.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(CreateLeadInputModel model)
+        public async Task<IActionResult> Post(CreateLeadInputModel model)
         {
-            var result = _service.Create(model);
+            var result = await _service.Create(model);
 
             return CreatedAtAction(nameof(GetById), new {id = result.Data}, model);
         }
 
         [HttpPut]
-        public IActionResult Put(UpdateLeadInputModel model)
+        public async Task<IActionResult> Put(UpdateLeadInputModel model)
         {
-            var result = _service.Update(model);
+            var result = await _service.Update(model);
 
             if(!result.IsSuccess)
             {
@@ -57,9 +57,9 @@ namespace LeadManager.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = _service.Delete(id);
+            var result = await _service.Delete(id);
 
             if (!result.IsSuccess)
             {
@@ -70,9 +70,9 @@ namespace LeadManager.API.Controllers
         }
 
         [HttpPut("{id}/accept")]
-        public IActionResult Accept(int id)
+        public async Task<IActionResult> Accept(int id)
         {
-            var result = _service.Accept(id);
+            var result = await _service.Accept(id);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -81,9 +81,9 @@ namespace LeadManager.API.Controllers
         }
 
         [HttpPut("{id}/decline")]
-        public IActionResult Decline(int id)
+        public async Task<IActionResult> Decline(int id)
         {
-            var result = _service.Declined(id);
+            var result = await _service.Declined(id);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

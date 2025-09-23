@@ -9,12 +9,12 @@ namespace LeadManager.Application.Services
 {
     public interface ILeadService
     {
-        ResultViewModel<List<LeadItemViewModel>> GetAll();
-        ResultViewModel<LeadViewModel> GetById(int id);
-        ResultViewModel<int> Create(CreateLeadInputModel model);
-        ResultViewModel Update(UpdateLeadInputModel model);
-        ResultViewModel Delete(int id);
-        ResultViewModel Accept(int id);
-        ResultViewModel Declined(int id);
+        Task<ResultViewModel<List<LeadItemViewModel>>> GetAllInvitedAndAccepted();
+        Task<ResultViewModel<LeadViewModel>> GetById(int id);
+        Task<ResultViewModel<int>> Create(CreateLeadInputModel model);
+        Task<ResultViewModel> Update(UpdateLeadInputModel model);
+        Task<ResultViewModel> Delete(int id);
+        Task<ResultViewModel> Accept(int id);
+        Task<ResultViewModel> Declined(int id);
     }
 }
