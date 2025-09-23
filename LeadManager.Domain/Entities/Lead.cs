@@ -20,6 +20,8 @@ namespace LeadManager.Domain.Entities
             Description = description;
             Price = price;
 
+            ApplyDiscount();
+
             DateCreated = DateTime.Now;
             Status = LeadStatus.Invited;
         }
