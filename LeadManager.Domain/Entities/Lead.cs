@@ -20,8 +20,6 @@ namespace LeadManager.Domain.Entities
             Description = description;
             Price = price;
 
-            ApplyDiscount();
-
             DateCreated = DateTime.Now;
             Status = LeadStatus.Invited;
         }
@@ -43,6 +41,7 @@ namespace LeadManager.Domain.Entities
                 return false;
 
             Status = LeadStatus.Accepted;
+            ApplyDiscount();
             return true;
         }
 
@@ -71,7 +70,8 @@ namespace LeadManager.Domain.Entities
             Description = description;
             Price = price;
 
-            ApplyDiscount();
+            if (Status == LeadStatus.Accepted)
+                ApplyDiscount();
         }
     }
 }

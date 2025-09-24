@@ -13,10 +13,12 @@ namespace LeadManager.Application.Services
     public class LeadService : ILeadService
     {
         private readonly LeadManagerDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public LeadService(LeadManagerDbContext context)
+        public LeadService(LeadManagerDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
         public async Task<ResultViewModel<List<LeadItemViewModel>>> GetAllInvitedAndAccepted()
         {
@@ -91,6 +93,10 @@ namespace LeadManager.Application.Services
                 return ResultViewModel.Error("O lead não pode ser aceito.");
 
             await _context.SaveChangesAsync();
+
+            var subject = "New lead accepted";
+            var body = $"The lead {lead.FullName} has been accepted. Price: {lead.Price:C}";
+            await _emailService.SendEmailAsync("vendas@test.com", subject, body);
 
             return ResultViewModel.Success();
         }
